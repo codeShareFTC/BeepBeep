@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
 }
 
-apply from: '../../build.RoardRunnerCommon.gradle'
+apply from: '../../build.RoadRunnerCommon.gradle'
 
 android {
     namespace 'com.example.wgwsim2'

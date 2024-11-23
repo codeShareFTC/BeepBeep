@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
 }
-apply from: '../../build.RoardRunnerCommon.gradle'
+apply from: '../../build.RoadRunnerCommon.gradle'
 
 repositories {
     maven { url = 'https://maven.brott.dev/' }
