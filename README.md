@@ -51,7 +51,7 @@ Video of install (written directions below):
 
 
 6) Add the BeepBeep Submodule - Select the terminal tab in the bottom window and enter the command:
-   (Replace 'your-repo' with the directory of your fork of BeepBeep from previous step.
+   (Replace 'your-repo' with the directory of your fork of BeepBeep from previous step.)
 
 `Git submodule add https://github.com/your-repo/BeepBeep.git`
 
