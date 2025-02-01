@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class BeepBeepWin extends JFrame {
 
@@ -34,9 +36,12 @@ public class BeepBeepWin extends JFrame {
     JSlider slider;
     JMenu menu;
     JButton playPause;
+    JSpinner speedSelect;
     boolean startNewRun = true;
     boolean showMouseCursor = true;
     boolean showMouseCompass = true;
+    int speed = 1;
+    javax.swing.Timer timer;
 
 
     // initializing using constructor
@@ -112,6 +117,20 @@ public class BeepBeepWin extends JFrame {
             }
         });
 
+        SpinnerModel spinnerModel = new SpinnerNumberModel(speed, //initial value
+                1, //min
+                25, //max
+                1);//step
+        speedSelect = new JSpinner(spinnerModel);
+        speedSelect.addChangeListener(e -> {
+            int newSpeed = (int) spinnerModel.getValue();
+            wgwSimCore.setSpeed(newSpeed);
+            speed = newSpeed;
+            timer.setDelay((int)wgwSimCore.getTimerTickms() / speed);  //reset timer when speed changes
+        });
+        add(speedSelect);
+        wgwSimCore.setSpeed(speed);  // set it to initial value
+
 
         // setup the spring layout constraints to position all the controls in the window
         sprLayout.putConstraint(SpringLayout.WEST, jP,   5, SpringLayout.WEST, getContentPane());
@@ -137,6 +156,10 @@ public class BeepBeepWin extends JFrame {
         // constraints for positionSel
         sprLayout.putConstraint(SpringLayout.NORTH, positionSel, 0, SpringLayout.NORTH, rePLay);
         sprLayout.putConstraint(SpringLayout.WEST, positionSel, 5,  SpringLayout.EAST, rePLay);
+
+        // constraints for speedSelector
+        sprLayout.putConstraint(SpringLayout.NORTH, speedSelect, 0, SpringLayout.NORTH, positionSel);
+        sprLayout.putConstraint(SpringLayout.WEST, speedSelect, 5,  SpringLayout.EAST, positionSel);
 
         // constraints for mouseInfo
         sprLayout.putConstraint(SpringLayout.NORTH, mouseInfo, 5, SpringLayout.SOUTH, playPause);
@@ -218,12 +241,12 @@ public class BeepBeepWin extends JFrame {
                         int fontHeight = fm.getHeight();
                         int hideSize = fontHeight * 4;
                         if (yi > (hideSize))
-                            g.drawString(" +X 0\u00B0", xi, fontHeight * 2);
+                            g.drawString(" +X 0°", xi, fontHeight * 2);
                         if (yi < layerHeight - hideSize)
-                            g.drawString(" -X 180\u00B0", xi, layerHeight - fontHeight * 2);
+                            g.drawString(" -X 180°", xi, layerHeight - fontHeight * 2);
                         if (xi > hideSize)
-                            g.drawString(" +Y 90\u00B0", 0, yi - 2);
-                        String str = "-Y 270\u00B0";
+                            g.drawString(" +Y 90°", 0, yi - 2);
+                        String str = "-Y 270°";
                         int strWidth = fm.stringWidth(str);
                         if (xi < layerWidth - strWidth)
                             g.drawString(str, layerWidth - strWidth, yi - 2);
@@ -272,15 +295,37 @@ public class BeepBeepWin extends JFrame {
         pack();
         setVisible(true);
 
+        // run the simulation!
+        wgwSimCore.setSpeed(0);
+        timerTick(); // kick of the simulation
+        long startTime = System.currentTimeMillis();
+        long timeout = 2000; // timeout in milliseconds
+        while(( !wgwSimCore.isSimulationComplete()) && (System.currentTimeMillis() - startTime < timeout) ) {
+            wgwSimCore.timerTick();
+        }
+        wgwSimCore.setSpeed(speed);
+        if (wgwSimCore.isSimulationComplete()) {
+            wgwSimCore.showAtTimeMs(wgwSimCore.findStartTime() * 1000);
+            timerTick();
+            wgwSimCore.unpause();
+        } else {  // not able to pre-run simulaiton due to some long delays possibly waitAction used
+            startNewRun = true; // start the simulation ver based on timer ticks.
+            JOptionPane.showMessageDialog(this, "Simulation taking too long.\nReplace SleepAction with SimTimedAction.\nSimulation will run in Real Time now.",
+                    "ERROR", JOptionPane.ERROR_MESSAGE);
+        }
+
         // Create a timer tic to run the sim core
-        new javax.swing.Timer((int)wgwSimCore.getTimerTickms(), new ActionListener() {
+        timer = new javax.swing.Timer((int)wgwSimCore.getTimerTickms() / speed, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 timerTick();
             }
-        }).start();
+        });
+        timer.start();
+        timer.setDelay((int)wgwSimCore.getTimerTickms() / speed);
     }
 
     private void timerTick() {
+
         // clear our transparent overlay to draw robots on.
         Graphics2D g2 = robotlayer.createGraphics();
         g2.setComposite(AlphaComposite.Clear);

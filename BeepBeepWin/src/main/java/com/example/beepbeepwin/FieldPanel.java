@@ -7,13 +7,12 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.util.LinkedHashMap;
 
 // concept taking from https://stackoverflow.com/questions/35974972/multiple-independent-layers-in-graphics
 
 public class FieldPanel extends JPanel {
-    public enum LayerNames {BACKGROUND, ROBOTS, MOUSE, GRID}
+    public enum LayerNames {BACKGROUND, ROBOTS, MOUSE}
 
     LinkedHashMap<LayerNames, Image> layers;
 
@@ -42,16 +41,14 @@ public class FieldPanel extends JPanel {
      * a square shape.  Must (must, must) be added to a GridBagLayout
      * as the only component (it uses the parent as a guide to size)
      * with no GridBagConstaint (so it is centered).
-     * from: https://coderanch.com/t/629253/java/create-JPanel-maintains-aspect-ratio
+     * from: <a href="https://coderanch.com/t/629253/java/create-JPanel-maintains-aspect-ratio">...</a>
      */
     @Override
     public final Dimension getPreferredSize() {
         Dimension d = super.getPreferredSize();
 //        System.out.println("d=" + d.width + ", " + d.height);
-        Dimension prefSize = null;
+        Dimension prefSize;
         Component c = getParent();
-//        System.out.println("c=" + c);
-//        System.out.println("c=" + c.getWidth() + ", " + c.getHeight());
         if (c == null) {
             prefSize = new Dimension((int) d.getWidth(), (int) d.getHeight());
         } else if (c.getWidth() > d.getWidth() && c.getHeight() > d.getHeight()) {
@@ -62,8 +59,7 @@ public class FieldPanel extends JPanel {
         int w = (int) prefSize.getWidth();
         int h = (int) prefSize.getHeight();
         // the smaller of the two sizes
-        int s = (w > h ? h : w);
-//        System.out.println("s=" + s);
+        int s = (Math.min(w, h));
         return new Dimension(s, s);
     }
 
