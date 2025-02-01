@@ -27,7 +27,7 @@ this is a windows executable and our current preferred interface due to compile 
 
 ### BeepBeepApp
 
-his is an android app that can be installed on other android devices.  It is useful, but when developing trajectories this is run in the Android Studio Device simulator.  Compile, launch and run times were less than ideal on some of our older machines so we transitioned to the Windows executable above.
+This is an android app that can be installed on other android devices.  It is useful, but when developing trajectories this is run in the Android Studio Device simulator.  Compile, launch and run times were less than ideal on some of our older machines so we transitioned to the Windows executable above.
 
 In addition to the BeepBeep submodule you will need a module in your project that holds the trajectories that will be run by the simulator and the physical robot code.  This module is accessible to the BeepBeep and TeamCode making it simple to develop paths in the simulator and then quickly deploy to the physical robot with zero code changes\!
 
@@ -42,19 +42,26 @@ A full understanding of Road Runner is encouraged, please read all of their docu
 Video of install (written directions below):
 [BeepBeep install Video](https://youtu.be/Zn9rZX6zMNc)
 
-1) We have provided a BeepBeep sample example project.  PLEASE do not clone this sample project.  Use it for reference and you may pull sample files from it.  This sample project may not be kept up to date with Road Runner or BeepBeep.  Clone those repos directly, not the sample project. [https://github.com/codeShareFTC/BeepBeepSampleProject]
+1) We have provided a BeepBeep sample example project.  PLEASE do not clone this sample project.  Use it for reference and you may pull sample files from it.  This sample project may not be kept up to date with Road Runner or BeepBeep.  Clone those repos directly, not the sample project. [BeepBeep-SampleProject](https://github.com/codeShareFTC/BeepBeep-SampleProject)
 2) First you need a project that includes the FTC SDK and Road Runner. See RR documentation at:  [https://rr.brott.dev/docs/v1-0/installation/](https://rr.brott.dev/docs/v1-0/installation/) for details.
 3) Make sure this project builds and Road Runner is working
 4) Fork BeepBeep into your own repo for easy modification and source control.
-5) In your fork of BeepBeep go to \<\>code and copy the URL, use it in next step.
+5) In your github fork of BeepBeep go to \<\>code and copy the URL, use it in next step.
+![BeepBeepPath](https://github.com/user-attachments/assets/9346fbc4-6673-41a2-9b05-ad65dac135ae)
+
+
 6) Add the BeepBeep Submodule - Select the terminal tab in the bottom window and enter the command:
+   (Replace 'your-repo' with the directory of your fork of BeepBeep from previous step.)
 
 `Git submodule add https://github.com/your-repo/BeepBeep.git`
 
    ![addSubmodule](https://github.com/user-attachments/assets/1ab683f5-b537-4aa2-9d44-466a09269511)
 
 7) Common version of Road Runner - To ensure the same version of Road Runner is used by the simulator and the physical robot we need to define the version in a single location.  This is done at the top level of the project by creating a gradile file “build.RoardRunnerCommon.gradle” with the lines: (this file could be copied BeepBeep sample project)
-
+   * click on the top level of the project in the project window
+   * Right click New -> File
+   * Name the File build.RoardRunnerCommon.gradle
+   * Open the new file and the following lines:
     ```java
        repositories {
            maven { url = 'https://maven.brott.dev/' }
@@ -78,8 +85,8 @@ Video of install (written directions below):
      `apply from: '../build.RoardRunnerCommon.gradle'`
      Change Java Version to “VERSION\_1\_8”
      
-10) Copy sample files from TrajectoryActions directory into your projects TrajectoryActions directory. Add to GIT when prompted.
-     [https://github.com/codeShareFTC/BeepBeepSampleProject/TrajectoryActions/]  Check this link!!!
+10) Copy sample directories and files from TrajectoryActions directory into your projects TrajectoryActions directory. Add to GIT when prompted.
+     [trajectoryactions](https://github.com/codeShareFTC/BeepBeep-SampleProject/tree/master/TrajectoryActions/src/main/java/com/example/trajectoryactions)
 11) Edit settings.gradle (Project Setting)
     1) Add these lines
      ```java 
@@ -116,8 +123,11 @@ For the physical robot to use the trajectory actions we need to make a few chang
 
 We want to use common parameters for the simulator and the physical robot
 1) Move the IMU config from the Params class to just be class variable
-2) comment out or delete the PARAMS class
-3) Instantiate PARAMS using the class shared with the simulator
+ * Will alos need to update where logoFacingDirection & usbFacingDirection are used to not be in the PARAMS class.
+2) comment out or delete the PARAMS class and the instantiation of PARAMS.
+ * Note if you have already changed any of the PARAMS be sure to update them in the ParamsMecanumDrive class.
+3) Instantiate PARAMS using the class shared with the simulator (see below)
+4) ParamsMecanumDrive  will be red, hover over it and import the class.
 
 ```java
 public class MecanumDrive implements Drive {
